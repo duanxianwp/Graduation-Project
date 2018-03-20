@@ -2,18 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import {BrowserRouter, Switch, Route, HashRouter} from "react-router-dom";
+import {BrowserRouter, Switch, Route} from "react-router-dom";
 import registerServiceWorker from './registerServiceWorker';
 import Main from "./components/Main/Main";
-import FindPassword from "./coxxmponents/FindPassword/FindPassword";
+import FindPassword from "./components/FindPassword/FindPassword";
+
+
 
 ReactDOM.render(
-    <HashRouter>
+    <BrowserRouter>
         <Switch>
             <Route exact path="/" component={App}/>
-            <Route exact path="/main" component={Main}/>
-            <Route path="/findPassword" component={FindPassword}/>
+            <Route path="/main" component={Main}/>
+            <Route path= "/findPassword" component={FindPassword}/>
         </Switch>
-    </HashRouter>
+    </BrowserRouter>
     , document.getElementById('root'));
 registerServiceWorker();
