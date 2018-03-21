@@ -2,21 +2,27 @@ import React, {Component} from "react";
 import {Form, FormGroup, FormControl, ControlLabel, Button} from "react-bootstrap";
 import classes from "./Login.css";
 import {Link, withRouter} from "react-router-dom";
-
+import axios from "../../axios-requests";
+// import axios from "axios";
 
 class Login extends Component {
     constructor() {
         super();
         this.state = {
-            username: "",
+            account: "",
             password: "",
         }
     }
 
     submitHandler = (event) => {
-        event.preventDefault();
+        // event.preventDefault();
         console.log(this.state);
-        this.props.history.replace("/main");
+        const orders = {...this.state};
+        console.log(orders);
+        axios.post("/account/login", orders)
+            .then(response => console.log(response))
+            .catch(error => console.log(error));
+        // this.props.history.replace("/main");
 
     };
 
@@ -29,7 +35,7 @@ class Login extends Component {
                         <FormControl type="text"
                                      placeholder="Please inter your name"
                                      className={classes.Control}
-                                     onChange={(event) => this.setState({username: event.target.value})}
+                                     onChange={(event) => this.setState({account: event.target.value})}
                         />
                     </FormGroup>
                     <FormGroup>
