@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="Author" contect="http://www.webqin.net">
+    <title>忘记密码</title>
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+    <link type="text/css" href="css/css.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div class="content">
+    <div class="web-width">
+        <div class="for-liucheng">
+            <div class="liulist for-cur"></div>
+            <div class="liulist for-cur"></div>
+            <div class="liulist"></div>
+            <div class="liulist"></div>
+            <div class="liutextbox">
+                <div class="liutext for-cur"><em>1</em><br/><strong>填写账户名</strong></div>
+                <div class="liutext for-cur"><em>2</em><br/><strong>验证身份</strong></div>
+                <div class="liutext"><em>3</em><br/><strong>设置新密码</strong></div>
+                <div class="liutext"><em>4</em><br/><strong>完成</strong></div>
+            </div>
+        </div><!--for-liucheng/-->
+        <form action="" method="get" class="forget-pwd">
+            <dl>
+                <dt>验证方式：</dt>
+                <dd>
+                    <select class="selyz">
+                        <option value="1" selected>已验证邮箱</option>
+                    </select>
+                </dd>
+                <div class="clears"></div>
+            </dl>
+            <dl>
+                <dt>用户名：</dt>
+                <dd><input type="text" class="account" disabled/></dd>
+                <div class="clears"></div>
+            </dl>
+            <dl class="sel-yzyx">
+                <dt>已验证邮箱：</dt>
+                <dd><input type="text" class="email" readonly/></dd>
+                <div class="clears"></div>
+            </dl>
+            <dl>
+                <dt>邮件验证码：</dt>
+                <dd><input type="text" class="code"/>
+                    <button class="getcode" onclick="timeTask(2)">获取验证码</button>
+                </dd>
+                <div class="clears"></div>
+            </dl>
+            <div class="subtijiao"><input type="submit" onclick="validateCode()" value="提交"/></div>
+        </form><!--forget-pwd/-->
+    </div><!--web-width/-->
+</div><!--content/-->
+
+</body>
+<script type="text/javascript" src="../home/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../home/js/config.js"></script>
+<script>
+
+    $('.account').val(sessionStorage.getItem("userAccount"));
+    $('.email').val(sessionStorage.getItem("userEmail"))
+    /* $.ajax({
+
+         url:baseUrl+"/account/"
+     })*/
+    timeTask(1);
+
+    function timeTask(type) {
+
+        if (type == 1) {
+            if (sessionStorage.getItem('code_time') == 'null') {
+                return;
+            }
+        } else {
+            $.ajax({
+
+                url: baseUrl + "/account/sendEmail",
+                type: 'GET',
+                data: {
+                    account: $('.account').val()
+                },
+                dataType: 'JSON',
+                success: function (res) {
+
+                    if (res.code == '0200') {
+
+                    } else {
+                        alert('验证码发送失败,错误:' + res.msg);
+                    }
+                }
+            })
+        }
+        var obj = $('.getcode');
+        var time = (sessionStorage.getItem('code_time') > 0 && sessionStorage.getItem('code_time') <= 60) ? sessionStorage.getItem('code_time') : 60;
+        $(obj).text(time + "后重新获取")
+        $(obj).attr("disabled", "disabled");
+        time--;
+        sessionStorage.setItem('code_time', time)
+        var t;
+        if (time == 0) {
+
+            sessionStorage.setItem(
+                'code_time', null);
+            $(obj).removeAttr('disabled');
+            $(obj).text("获取验证码");
+            $(obj).removeAttr("disabled");
+            return false;
+        }
+        setTimeout('timeTask(1)', 1000);
+    }
+
+    function validateCode() {
+        var code = $('.code').val();
+        var account = sessionStorage.getItem("userAccount");
+
+        $.ajax({
+
+            url: baseUrl + "/account/validateCode",
+            data: {
+                account: account,
+                code: code
+            },
+            dataType:'JSON',
+            async:false,
+            success: function (res) {
+                if (res.code == '0200') {
+                    if (res.data) {
+                        sessionStorage.setItem("code", code)
+                        $('.forget-pwd').attr("action", "forgetPwd3.html");
+                        $('.forget-pwd').submit();
+                    } else {
+                        alert("验证码错误!")
+                    }
+
+                } else {
+                    alert("验证码验证失败,error:" + res.msg);
+                }
+            },error:function (res) {
+            }
+        })
+    }
+</script>
+</html>

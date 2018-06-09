@@ -1,0 +1,85 @@
+{
+    "resultCode": 1,
+    "resultMsg": "登陆成功",
+    "resultData": [
+				{
+            "titleName": "用户管理",
+            "iconClass": "account_box",
+            "middleLink": [
+                {
+                    "titleName" : "新增用户",
+                    "url"       : "AddUser",
+                    "breadcrumb": [ "用户管理", "新增用户" ]
+                }, {
+                    "titleName" : "更新用户",
+                    "url"       : "UpdUser",
+                    "breadcrumb": [ "用户管理", "更新用户" ]
+                }, {
+                    "titleName" : "查询用户",
+                    "url"       : "SelUser",
+                    "breadcrumb": [ "用户管理", "查询用户" ]
+                }
+            ]
+		  },
+		  {
+            "titleName": "奖项管理",
+            "iconClass": "school",
+            "middleLink": [
+                {
+                    "titleName" : "奖项列表",
+                    "url"       : "RewardList",
+                    "breadcrumb": [ "奖项管理", "奖项列表" ]
+                }, {
+                    "titleName" : "新增奖项",
+                    "url"       : "AddReward",
+                    "breadcrumb": [ "奖项管理", "新增奖项" ]
+                }, {
+                    "titleName" : "更新奖项",
+                    "url"       : "UpdReward",
+                    "breadcrumb": [ "奖项管理", "更新奖项" ]
+                },{
+				    "titleName" : "授权管理",
+                    "url"       : "Authorized",
+                    "breadcrumb": [ "奖项管理", "授权管理" ]
+				}
+            ]
+		  },{
+            "titleName": "工单管理",
+            "iconClass": "message",
+            "middleLink": [
+                {
+                    "titleName" : "工单统计",
+                    "url"       : "GetOrderSum",
+                    "breadcrumb": [ "工单管理", "工单统计" ]
+                },
+                {
+                    "titleName" : "工单列表",
+                    "url"       : "WorkOrderList",
+                    "breadcrumb": [ "工单管理", "工单列表" ]
+                }, {
+                    "titleName" : "待审核",
+                    "url"       : "Pending",
+                    "breadcrumb": [ "工单管理", "待审核" ]
+                }
+            ]
+		  },{
+            "titleName": "学分管理",
+            "iconClass": "local_library",
+            "middleLink": [
+                {
+                    "titleName" : "逆序列表",
+                    "url"       : "DescList",
+                    "breadcrumb": [ "学分管理", "逆序列表" ]
+                }, {
+                    "titleName" : "按条件查询",
+                    "url"       : "SelByClass",
+                    "breadcrumb": [ "学分管理", "按条件查询" ]
+                }, {
+                    "titleName" : "按学号查询",
+                    "url"       : "SelByNum",
+                    "breadcrumb": [ "学分管理", "按学号查询" ]
+                }
+            ]
+		  }
+    ]
+}

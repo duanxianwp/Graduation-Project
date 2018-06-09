@@ -1,0 +1,285 @@
+<html>
+<head>
+    <title>发起工单</title>
+    <style>
+        body {
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="container">
+    <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="奖项类别">
+            <el-select v-model="form.category" placeholder="请选择奖项类别">
+                <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="奖项内容">
+            <el-select v-model="form.rank" placeholder="请选择奖项内容" @focus="getRank">
+                <el-option
+                        v-for="item in options1"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="申请说明">
+            <el-input v-model="form.msg"></el-input>
+        </el-form-item>
+        <el-form-item label="上传文件">
+        <el-upload
+                class="upload-demo"
+                ref="upload"
+                action=""
+                :file-list="fileList"
+                :on-change="changeFile"
+                :show-file-list="false"
+                :before-upload="beforeUpload"
+                :auto-upload="true">
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传文件</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+</el-form-item>
+
+        <!--<el-form-item label="上传文件">
+            <el-upload
+                    class="upload-demo"
+                    ref="upload"
+                    action=""
+                    :limit=1
+                    :file-list="fileList"
+                    :before-upload="beforeUpload"
+                    :auto-upload="true">
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+        </el-form-item>-->
+        <br>
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+        </el-form-item>
+    </el-form>
+    <img class="upload_img" v-if="img_show"  v-bind:src="s_img" />
+</div>
+</body>
+<script type="text/javascript" src="http://oss.wanpeng123.cn/js/aliyun-oss-upload.min.js"></script>
+<script>
+
+    var vue = new Vue({
+            el: '#container',
+            data: {
+                s_file:'',
+                img_show:false,
+                s_img:"",
+                fileList:[],
+                form: {
+                    category: '',
+                    rank: '',
+                    msg: '',
+                },
+                options: [],
+                options1: [],
+                fileList: [],
+                url: '',
+
+            }, beforeCreate: async function () {
+
+                $.ajax({
+                    url: baseUrl + "/creditOption/getCategory",
+                    type: 'GET',
+                    headers: {
+                        token: sessionStorage.getItem("token")
+                    },
+                    dataType: 'JSON',
+                    success: function (res) {
+
+                        if (res.code == '0200') {
+                            var data = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                data[i] = {'label': res.data[i], 'value': res.data[i]}
+                            }
+                            vue.options = data;
+
+                        } else {
+                            vue.$message({
+                                type: 'error',
+                                message: res.msg
+                            });
+                        }
+                    }
+                })
+            },
+            methods: {
+                changeFile(file,fileList){
+                    vue.fileList = [];
+                    vue.fileList[0] = file;
+                    vue.s_img = file.url;
+                    vue.img_show = true;
+                },
+
+                getRank() {
+                    if (vue.form.category == '') {
+                        return;
+                    }
+                    var category = vue.form.category;
+                    $.ajax({
+
+                        url: baseUrl + "/creditOption/getOptionsByCategory",
+                        type: "GET",
+                        headers: {
+                            token: sessionStorage.getItem("token")
+                        },
+                        data: {
+                            category: vue.form.category,
+                            rank: '',
+                            page: 1
+                        },
+                        dataType: "JSON",
+                        success: function (res) {
+
+                            if (res.code == '0200') {
+                                var data = [];
+                                for (var i = 0; i < res.data.length; i++) {
+                                    data[i] = {'label': res.data[i].rank, 'value': res.data[i].id}
+                                }
+                                vue.options1 = data;
+
+                            } else {
+                                vue.$message({
+                                    type: 'error',
+                                    message: res.msg
+                                });
+                            }
+                        }
+
+                    })
+                },
+                beforeUpload(file) {
+                    vue.s_file = file;
+                    // return vue.submitUpload(file);
+                },
+                submitUpload() {
+
+                    var file = vue.s_file;  //获取文件流
+
+                    if (file==""||file==null){
+                         vue.$message({
+                                    type: 'error',
+                                    message: '上传文件不为空或文件格式不支持'
+                                });
+                         return
+                    }
+                //    console.log(file)
+                    var val = file.name;
+                    var suffix = val.substr(val.indexOf("."));
+                    var storeAs = "bs/" + vue.timestamp() + suffix;
+                   //  console.log(file.name + ' => ' + storeAs);
+                    var client = new OSS.Wrapper({
+                        region: region,
+                        accessKeyId: accessKeyId,
+                        accessKeySecret: accessKeySecret,
+                        bucket: bucket
+                    });
+                    client.multipartUpload(storeAs, file).then(function (result) {
+
+                        vue.url = ossUrl + "/" + storeAs;
+                         vue.$message({
+                                    type: 'success',
+                                    message: '文件上传成功'
+                                });
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
+                    return false
+                }, timestamp() {
+                    var time = new Date();
+                    var y = time.getFullYear();
+                    var m = time.getMonth() + 1;
+                    var d = time.getDate();
+                    var h = time.getHours();
+                    var mm = time.getMinutes();
+                    var s = time.getSeconds();
+                    //  console.log(y);
+                    return "" + y + vue.add0(m) + vue.add0(d) + vue.add0(h) + vue.add0(mm) + vue.add0(s);
+                }, add0(m) {
+                    return m < 10 ? '0' + m : m;
+                },
+                onSubmit() {
+
+                    if (vue.url == '') {
+                        vue.$message({
+                            type: 'error',
+                            message: '尚未上传文件证明'
+                        });
+                        return
+                    }
+                    $.ajax({
+
+                        url: baseUrl + "/workOrder/openNewOrder",
+                        type: 'POST',
+                        headers: {
+                            token: sessionStorage.getItem("token")
+                        },
+                        data: {
+
+                            creditId: vue.form.rank,
+                            msg: vue.form.msg,
+                            url: vue.url
+                        },
+                        success: function (res) {
+
+                            if (res.code == '0200') {
+                                vue.$message({
+                                    type: 'success',
+                                    message: '工单已成功发起, 请耐心等待审核结果!'
+                                });
+                            } else {
+                                vue.$message({
+                                    type: 'error',
+                                    message: res.msg
+                                });
+                            }
+                        }
+                    })
+                }
+                ,
+            }
+
+
+        })
+    ;
+
+</script>
+<style>
+    .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        height: 50px;
+        width: 30%;
+    }
+
+    #container {
+        padding-left: 25%;
+        padding-top: 5%;
+    }
+    .upload_img{
+
+        width:200px;
+        height: 200px;
+        position: absolute;
+        top: 23%;
+        right: 30%;
+    }
+</style>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>主页</title>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="http://oss.wanpeng123.cn/css/elementui.css">
+    <link rel="icon" href="favicon.ico">
+    <style>
+        body {
+            background-color: #DCDCDC;
+        }
+
+        .nav-main {
+            height: 100%;
+            margin-top: 0%;
+        }
+
+        .nav-ul {
+            margin-top: 120%;
+
+        }
+
+        .header {
+            height: 8%;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .content {
+            width: 91%;
+            height: 90%;
+            margin-left: 8%;
+            margin-top: 2%;
+        }
+
+        .username {
+
+            display: block;
+            font-size: 20px;
+            width: 10%;
+            height: 80%;
+            position: absolute;
+            right: 2%;
+            top: 4%
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="header">
+        <span class="username">欢迎您,用户</span>
+    </div>
+    <div class="content">
+
+    </div>
+</div>
+<div class="nav-main">
+    <div class="nav-box">
+        <div class="nav">
+            <ul class="nav-ul">
+                <li><a href="javascript:loadPage(0)" class="home"><span>首页</span></a></li>
+                <li><a href="#" class="develop"><span>工单</span></a></li>
+                <li><a href="#" class="wechat"><span>个人</span></a></li>
+                <li><a href="#" class="contact"><span>关于我们</span></a></li>
+            </ul>
+        </div>
+        <div class="nav-slide">
+            <div class="nav-slide-o"></div>
+            <div class="nav-slide-o">
+                <ul>
+                    <li><a href="javascript:loadPage(1)"><span>发起工单</span></a></li>
+                    <li><a href="javascript:loadPage(2)"><span>工单列表</span></a></li>
+                </ul>
+            </div>
+            <div class="nav-slide-o">
+                <ul>
+                    <li><a href="javascript:loadPage(3)"><span>我的资料</span></a></li>
+                    <li><a href="javascript:loadPage(4)"><span>修改密码</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+        var data = sessionStorage.getItem("stuData");
+        if (data == null || data == 'undefind'){
+            alert("您尚未登陆！")
+            location.href='/';
+        }
+        var name = JSON.parse(data).name;
+        $('.username').text('欢迎您,'+name);
+
+        var thisTime;
+        $('.nav-ul li').mouseleave(function (even) {
+            thisTime = setTimeout(thisMouseOut, 1000);
+        })
+
+        $('.nav-ul li').mouseenter(function () {
+            clearTimeout(thisTime);
+            var thisUB = $('.nav-ul li').index($(this));
+            if ($.trim($('.nav-slide-o').eq(thisUB).html()) != "") {
+                $('.nav-slide').addClass('hover');
+                $('.nav-slide-o').hide();
+                $('.nav-slide-o').eq(thisUB).show();
+            }
+            else {
+                $('.nav-slide').removeClass('hover');
+            }
+        })
+
+        function thisMouseOut() {
+            $('.nav-slide').removeClass('hover');
+        }
+
+        $('.nav-slide').mouseenter(function () {
+            clearTimeout(thisTime);
+            $('.nav-slide').addClass('hover');
+        })
+        $('.nav-slide').mouseleave(function () {
+            $('.nav-slide').removeClass('hover');
+        })
+          loadPage(0);
+    })
+
+    function loadPage(page) {
+
+        var page;
+        switch (page) {
+
+            case 0:
+                page = 'home.html';
+                break;
+            case 1:
+                page = 'openOrder.html';
+                break;
+            case 2:
+                page = 'orderList.html';
+                break;
+            case 3:
+                page = 'properties.html';
+                break;
+            case 4:
+                page = 'updPwd.html';
+                break;
+            default:
+                page = '#';
+        }
+
+        var url = "pages/"+page;
+        $.get(url, function (data) {
+            $('.content').html(data);
+        })
+    }
+</script>
+<script type="text/javascript" src="http://oss.wanpeng123.cn/js/vue.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script src="http://oss.wanpeng123.cn/js/elementui.js"></script>
+</body>
+</html>

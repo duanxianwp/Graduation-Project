@@ -1,0 +1,355 @@
+<html>
+
+<head>
+    <title>发起工单</title>
+    <style>
+        body {
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="container">
+    <el-table :data="tableData"
+              border
+              style="width: 100%">
+        <el-table-column
+                prop="account"
+                label="学号"
+                min-width="133">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                v-if="true">
+        </el-table-column>
+        <el-table-column
+                prop="college"
+                label="学院"
+                min-width="120">
+        </el-table-column>
+        <el-table-column
+                prop="profession"
+                label="专业"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="classroom"
+                label="班级"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="score"
+                label="学分"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="operation"
+                label="学分详情"
+                width="150">
+            <template slot-scope="scope">
+                <el-button type="success" @click="onShow()">{{showContent==0?'展开':'收起'}}</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+</div>
+<div id="container1" v-if="dialogFormVisible">
+    <el-table
+            :data="tableData5"
+            border
+            style="width: 100%">
+        <el-table-column type="expand">
+            <template slot-scope="props">
+                <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="说明">
+                        <span>{{ props.row.msg }}</span>
+                    </el-form-item>
+                    <el-form-item label="审核人">
+                        <span>{{ props.row.authorName }}</span>
+                    </el-form-item>
+                    <el-form-item  class="img" label="证明">
+                        <img :src="props.row.url" width="138" height="138"/>
+                        <a href="javascript:void(0)" @click="onReview(props.row.url)"><span
+                                class="primary">预览</span></a>
+                    </el-form-item>
+                    <el-form-item label="回复">
+                        <span>{{ props.row.reply }}</span>
+                    </el-form-item>
+                </el-form>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="id"
+                label="工单ID"
+                min-width="133" v-if="false">
+        </el-table-column>
+		 <el-table-column
+                type="index"
+                label="#"
+                min-width="133">
+        </el-table-column>
+        <el-table-column
+                prop="account"
+                label="账号"
+                min-width="120">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="category"
+                label="奖项类别"
+                min-width="200">
+        </el-table-column>
+        <el-table-column
+                prop="rank"
+                label="奖项内容"
+                min-width="200">
+        </el-table-column>
+         <el-table-column
+                prop="score"
+                label="学分"
+                min-width="200">
+        </el-table-column>
+        <el-table-column
+                prop="createTime"
+                label="发起时间"
+                min-width="180">
+        </el-table-column>
+        <el-table-column
+                prop="endTime"
+                label="结束时间"
+                min-width="180">
+        </el-table-column>
+        <el-table-column
+                prop="status"
+                label="状态"
+                min-width="80">
+            <template slot-scope="scope">
+                <span v-if="scope.row.status== 1" style="color:#f7ba2a">待审核</span>
+                <span v-if="scope.row.status== 2" style="color:#42d885">已通过</span>
+                <span v-if="scope.row.status== 3" style="color:#ff4949">已驳回</span>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-pagination
+            @current-change="handleCurrentChange"
+            :current-page.sync="currentPage1"
+            :page-size="10"
+            layout="total, prev, pager, next"
+            :total="rows">
+    </el-pagination>
+    <el-dialog
+            :visible.sync="centerDialogVisible"
+            :modal-append-to-body="false"
+            width="30%"
+            center>
+            <span slot="footer" class="dialog-footer">
+                <img :src="imgUrl" width="500"/>
+    <el-button @click="centerDialogVisible = false">关闭</el-button>
+  </span>
+    </el-dialog>
+</div>
+</body>
+<script>
+
+    var vue = new Vue({
+            el: '#container',
+            data: {
+
+                tableData: [],
+                form: {},
+                formLabelWidth: '80px',
+                showContent: 0
+
+            },
+            beforeCreate: async function () {
+
+                $.ajax({
+
+                    url: baseUrl + "/account/getEmail",
+                    headers: {
+                        token: sessionStorage.getItem("token")
+                    },
+                    success: function (res) {
+
+                        if (res.code == '0200') {
+                            var data = JSON.parse(sessionStorage.getItem("stuData"));
+                            var info = [{
+                                account: data.account, name: data.name, college: data.college, profession: data.profession,
+                                classroom: data.classroom, score: data.classroom, score: data.score, email: res.data
+                            }]
+                            vue.tableData = info;
+                         
+                        } else {
+                            vue.$message({
+                                type: 'error',
+                                message: res.msg
+                            });
+                        }
+                    }
+
+                })
+            },
+            methods: {
+                onShow() {
+                    vue.showContent = 1 - vue.showContent;
+                    switch (vue.showContent) {
+                        case 0:
+                            vue1.dialogFormVisible = false;
+                            break;
+                        case 1:
+                            vue1.dialogFormVisible = true;
+                    }
+                }
+            }
+        })
+    ;
+
+    var vue1 = new Vue({
+            el: '#container1',
+            data: {
+                tableData5: [],
+                status: 0,
+                currentPage1: 1,
+                rows: 0,
+                centerDialogVisible: false,
+                imgUrl: "",
+                dialogFormVisible: false,
+
+            },
+            beforeCreate: async function () {
+
+                $.ajax({
+                    url: baseUrl + "/workOrder/getWorkOrderList",
+                    type: 'GET',
+                    headers: {
+                        token: sessionStorage.getItem("token")
+                    },
+                    data: {
+                        account: JSON.parse(sessionStorage.getItem("stuData")).account,
+                        status: 2,
+                        page: 1
+                    },
+                    async: true,
+                    dataType: 'JSON',
+                    success: function (res) {
+
+                        if (res.code == '0200') {
+                            vue1.tableData5 = res.data;
+							if(res.data.length == 0){
+							   
+							}else{
+                             vue1.rows = res.data[0].rows;
+							 let score = 0;
+							 for(let i=0;i<vue1.rows;i++){
+							    score += res.data[i].score;
+							 }
+							 vue.tableData[0].score = score;
+							}
+
+                        } else {
+                           /* vue1.$message({
+                                type: 'error',
+                                message: res.msg
+                            });*/
+                        }
+                    }
+                })
+            },
+            methods: {
+                async handleCurrentChange(page) {
+                    vue1.currentPage1 = page;
+                    await vue1.getWorkOrder(vue1.currentPage1);
+
+                }, onReview(url) {
+                    if (url == '') {
+                        vue1.$message({
+                            type: 'error',
+                            message: '图片地址不存在'
+                        });
+                        return;
+                    }
+                    vue1.centerDialogVisible = true;
+                    vue1.imgUrl = url;
+                },
+                async getWorkOrder(page) {
+
+                    $.ajax({
+                        url: baseUrl + "/workOrder/getWorkOrderList",
+                        type: 'GET',
+                        headers: {
+                            token: sessionStorage.getItem("token")
+                        },
+                        data: {
+                            account: JSON.parse(sessionStorage.getItem("stuData")).account,
+                            status: 2,
+                            page: page
+                        },
+                        async: true,
+                        dataType: 'JSON',
+                        success: function (res) {
+
+                            if (res.code == '0200') {
+                                vue1.tableData5 = res.data;
+                                vue1.rows = res.data[0].rows;
+
+                            } else {
+                                vue1.$message({
+                                    type: 'error',
+                                    message: res.msg
+                                });
+                            }
+                        }
+                    })
+
+                }
+
+            }
+
+        })
+    ;
+
+
+</script>
+<style>
+    .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        height: 50px;
+        width: 30%;
+    }
+
+    #container {
+        padding-left: 0%;
+        padding-top: 1%;
+    }
+    #container1 {
+        padding-left: 0%;
+        padding-top: 1%;
+    }
+    .demo-table-expand {
+        font-size: 0;
+    }
+
+    .demo-table-expand label {
+        width: 90px;
+        color: #99a9bf;
+    }
+
+    .demo-table-expand .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: 50%;
+    }
+    #container1 .img{
+        padding-bottom: 125px;
+    }
+
+</style>
+
+</html>

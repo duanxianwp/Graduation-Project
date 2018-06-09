@@ -1,0 +1,124 @@
+<html>
+<head>
+    <title>发起工单</title>
+    <style>
+        body {
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+<div id="container">
+    <el-form ref="form" :model="sizeForm" label-width="80px" size="mini">
+        <el-form-item label="旧密码">
+            <el-input type="password" v-model="sizeForm.pwd"></el-input>
+        </el-form-item>
+        <el-form-item label="新密码">
+            <el-input type="password" v-model="sizeForm.newPwd"></el-input>
+        </el-form-item>
+        <el-form-item label="重  复">
+            <el-input type="password" v-model="sizeForm.reNewPwd"></el-input>
+        </el-form-item>
+        <el-form-item size="large">
+            <el-button type="primary" @click="onSubmit">立即修改</el-button>
+            <el-button @click="onReset">重置</el-button>
+        </el-form-item>
+    </el-form>
+</div>
+</body>
+
+<script>
+    var vue = new Vue({
+            el: '#container',
+            data: {
+                sizeForm: {
+                    pwd: '',
+                    newPwd: '',
+                    reNewPwd: '',
+                },
+            },
+            methods: {
+                onSubmit() {
+                    if (vue.sizeForm.newPwd == '') {
+                        vue.$message({
+
+                            type: 'error',
+                            message: '密码不能为空'
+                        })
+                        return;
+                    }
+                    if (vue.sizeForm.newPwd != vue.sizeForm.reNewPwd) {
+                        vue.$message({
+
+                            type: 'error',
+                            message: '两次密码不一致'
+                        })
+                        return;
+                    }
+                    if (vue.sizeForm.pwd == vue.sizeForm.newPwd) {
+                        vue.$message({
+
+                            type: 'error',
+                            message: '新旧密码不能相同'
+                        })
+                        return;
+                    }
+
+                    vue.updatePwd();
+
+
+                }, onReset() {
+
+                    this.sizeForm.pwd = '';
+                    this.sizeForm.newPwd = '';
+                    this.sizeForm.reNewPwd = '';
+                }, updatePwd() {
+
+                    $.ajax({
+
+                        url: baseUrl + '/account/updatePwd',
+                        type: 'PUT',
+                        data: {
+                            pwd: vue.sizeForm.pwd,
+                            newPwd: vue.sizeForm.newPwd
+                        },
+                        headers: {
+                            token: sessionStorage.getItem("token")
+                        }, success: function (res) {
+
+                            if (res.code == '0200') {
+                                vue.$message({
+                                    type: 'success',
+                                    message: '更新成功'
+                                });
+                                sessionStorage.clear();
+                                location.href="/";
+                            } else {
+                                vue.$message({
+                                    type: 'error',
+                                    message: '更新失败 :' + res.msg
+                                });
+                            }
+                        }
+                    })
+                }
+            }
+        });
+
+</script>
+<style>
+    .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        height: 50px;
+        width: 30%;
+    }
+
+    #container {
+        padding-left: 25%;
+        padding-top: 5%;
+    }
+</style>
+
+</html>

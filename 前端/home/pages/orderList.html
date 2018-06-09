@@ -1,0 +1,249 @@
+<html>
+<head>
+    <title>工单列表</title>
+    <style>
+        body {
+            background-color: #fff;
+        }
+
+    </style>
+    <!-- <link rel="stylesheet" href="http://oss.wanpeng123.cn/css/elementui.css">  -->
+</head>
+<body>
+<div id="container">
+    <el-form :inline="true" class="demo-form-inline">
+        <el-form-item>
+            <el-button type="primary" @click="onQueryAll">全部</el-button>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="warning" @click="onQueryIng">待审核</el-button>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="success" @click="onQueryPass">已通过</el-button>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="danger" @click="onQueryReject">已驳回</el-button>
+        </el-form-item>
+    </el-form>
+    <el-table
+            :data="tableData5"
+            border
+            style="width: 100%">
+        <el-table-column type="expand">
+            <template slot-scope="props">
+                <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="说明">
+                        <span>{{ props.row.msg }}</span>
+                    </el-form-item>
+                    <el-form-item label="审核人">
+                        <span>{{ props.row.authorName }}</span>
+                    </el-form-item>
+                    <el-form-item label="证明">
+                        <img :src="props.row.url" width="138" height="138"/>
+                        <a href="javascript:void(0)" @click="onReview(props.row.url)"><span
+                                class="primary">预览</span></a>
+                    </el-form-item>
+                    <el-form-item label="回复">
+                        <span>{{ props.row.reply }}</span>
+                    </el-form-item>
+                </el-form>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="id"
+                label="工单ID"
+                min-width="133" v-if="false">
+        </el-table-column>
+		<el-table-column
+                type="index"
+                label="#"
+                min-width="133">
+        </el-table-column>
+        <el-table-column
+                prop="account"
+                label="账号"
+                min-width="120">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="category"
+                label="奖项类别"
+                min-width="200">
+        </el-table-column>
+        <el-table-column
+                prop="rank"
+                label="奖项内容"
+                min-width="200">
+        </el-table-column>
+        <el-table-column
+                prop="createTime"
+                label="发起时间"
+                min-width="180">
+        </el-table-column>
+        <el-table-column
+                prop="endTime"
+                label="结束时间"
+                min-width="180">
+        </el-table-column>
+        <el-table-column
+                prop="status"
+                label="状态"
+                min-width="80">
+            <template slot-scope="scope">
+                <span v-if="scope.row.status== 1" style="color:#f7ba2a">待审核</span>
+                <span v-if="scope.row.status== 2" style="color:#42d885">已通过</span>
+                <span v-if="scope.row.status== 3" style="color:#ff4949">已驳回</span>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-pagination
+            @current-change="handleCurrentChange"
+            :current-page.sync="currentPage1"
+            :page-size="10"
+            layout="total, prev, pager, next"
+            :total="rows">
+    </el-pagination>
+    <el-dialog
+            :visible.sync="centerDialogVisible"
+            :modal-append-to-body="false"
+            width="30%"
+            center>
+            <span slot="footer" class="dialog-footer">
+                <img :src="imgUrl" width="500"/>
+    <el-button @click="centerDialogVisible = false">关闭</el-button>
+  </span>
+    </el-dialog>
+</div>
+</body>
+<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script>
+
+    var vue = new Vue({
+            el: '#container',
+            data: {
+                tableData5: [],
+                status: 0,
+                currentPage1: 1,
+                rows: 0,
+                centerDialogVisible: false,
+                imgUrl: "",
+
+            },
+            beforeCreate: async function () {
+
+                $.ajax({
+                    url: baseUrl + "/workOrder/getWorkOrderList",
+                    type: 'GET',
+                    headers: {
+                        token: sessionStorage.getItem("token")
+                    },
+                    data: {
+                        account: JSON.parse(sessionStorage.getItem("stuData")).account,
+                        status: 0,
+                        page: 1
+                    },
+                    async: true,
+                    dataType: 'JSON',
+                    success: function (res) {
+
+                        if (res.code == '0200') {
+                            vue.tableData5 = res.data;
+                            vue.rows = res.data[0].rows;
+
+                        } else {
+                            vue.$message({
+                                type: 'error',
+                                message: res.msg
+                            });
+                        }
+                    }
+                })
+            },
+            methods: {
+                async onQueryAll() {
+                    vue.status = 0;
+                    await vue.getWorkOrder(1);
+                }, async onQueryIng() {
+                    vue.status = 1;
+                    await vue.getWorkOrder(1);
+                }, async onQueryPass() {
+                    vue.status = 2;
+                    await vue.getWorkOrder(1);
+                }, async onQueryReject() {
+                    vue.status = 3;
+                    await vue.getWorkOrder(1);
+                }, async handleCurrentChange(page) {
+                    vue.currentPage1 = page;
+                    await vue.getWorkOrder(vue.currentPage1);
+
+                }, onReview(url) {
+                    if (url == '') {
+                        vue.$message({
+                            type: 'error',
+                            message: '图片地址不存在'
+                        });
+                        return;
+                    }
+                    vue.centerDialogVisible = true;
+                    vue.imgUrl = url;
+                },
+                async getWorkOrder(page) {
+
+                    $.ajax({
+                        url: baseUrl + "/workOrder/getWorkOrderList",
+                        type: 'GET',
+                        headers: {
+                            token: sessionStorage.getItem("token")
+                        },
+                        data: {
+                            account: JSON.parse(sessionStorage.getItem("stuData")).account,
+                            status: vue.status,
+                            page: page
+                        },
+                        async: true,
+                        dataType: 'JSON',
+                        success: function (res) {
+
+                            if (res.code == '0200') {
+                                vue.tableData5 = res.data;
+                                vue.rows = res.data[0].rows;
+
+                            } else {
+                                vue.$message({
+                                    type: 'error',
+                                    message: res.msg
+                                });
+                            }
+                        }
+                    })
+
+                }
+
+            }
+
+        })
+    ;
+
+</script>
+<style>
+    .demo-table-expand {
+        font-size: 0;
+    }
+
+    .demo-table-expand label {
+        width: 90px;
+        color: #99a9bf;
+    }
+
+    .demo-table-expand .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: 50%;
+    }
+</style>
+</html>

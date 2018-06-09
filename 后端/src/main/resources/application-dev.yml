@@ -1,0 +1,32 @@
+server:
+  port: 8080
+  context-path: /
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://119.23.12.203:3306/credit?useUnicode=true&characterEncoding=utf8&useSSL=false
+    hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 1
+      maximum-pool-size: 15
+      pool-name: bosPoolName
+      max-lifetime: 1765000
+  redis:
+    database: 0
+    host: 119.23.12.203
+    port: 6378
+    password: 248624
+    timeout: 0
+mybatis:
+  config-location: mybatis-config.xml
+  mapper-locations: mybatis/mappers/**.xml
+  type-aliases-package: com.sys.entity
+logging:
+  level:
+    com:
+      sys:
+        dao: debug
+
+

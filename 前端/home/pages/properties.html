@@ -1,0 +1,167 @@
+<html>
+
+<head>
+    <title>发起工单</title>
+    <style>
+        body {
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="container">
+    <el-table :data="tableData"
+              border
+              style="width: 100%">
+        <el-table-column
+                prop="account"
+                label="学号"
+                min-width="133">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                v-if="false">
+        </el-table-column>
+        <el-table-column
+                prop="college"
+                label="学院"
+                min-width="120">
+        </el-table-column>
+        <el-table-column
+                prop="profession"
+                label="专业"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="classroom"
+                label="班级"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="score"
+                label="学分"
+                min-width="100">
+        </el-table-column>
+        <el-table-column
+                prop="email"
+                label="邮箱"
+                min-width="200">
+        </el-table-column>
+        <el-table-column
+                prop="operation"
+                label="操作"
+                width="150">
+            <template slot-scope="scope">
+                <el-button type="success" @click="onSuccess()">编辑</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-dialog title="修改邮箱" :visible.sync="dialogFormVisible" :modal-append-to-body="false">
+        <el-form :model="form">
+            <el-form-item label="邮箱">
+                <el-input v-model="form.email" auto-complete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="onTrue()">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
+</body>
+<script>
+
+    var vue = new Vue({
+            el: '#container',
+            data: {
+
+                tableData: [],
+                dialogFormVisible: false,
+                form: {},
+                formLabelWidth: '80px'
+
+            },
+            beforeCreate: async function () {
+
+                $.ajax({
+
+                    url: baseUrl + "/account/getEmail",
+                    headers: {
+                        token: sessionStorage.getItem("token")
+                    },
+                    success: function (res) {
+
+                        if (res.code == '0200') {
+                            var data = JSON.parse(sessionStorage.getItem("stuData"));
+                            var info = [{
+                                account: data.account, name: data.name, college: data.college, profession: data.profession,
+                                classroom: data.classroom, score: data.classroom, score: data.score, email: res.data
+                            }]
+                            vue.tableData = info;
+                        } else {
+                            vue.$message({
+                                type: 'error',
+                                message: res.msg
+                            });
+                        }
+                    }
+
+                })
+            },
+            methods: {
+                onSuccess() {
+                    vue.dialogFormVisible = true;
+                    vue.form.email = vue.tableData[0].email;
+                },
+                onTrue() {
+                    vue.dialogFormVisible = false;
+                    $.ajax({
+
+                        url: baseUrl + "/account/setEmail",
+                        type: 'PUT',
+                        data: {
+                            email: vue.form.email
+                        },
+                        headers: {
+                            token: sessionStorage.getItem("token")
+                        },
+                        success: function (res) {
+                            if (res.code == '0200') {
+                                vue.$message({
+                                    type: 'success',
+                                    message: '更新邮箱成功'
+                                });
+                                vue.tableData[0].email = vue.form.email;
+                            } else {
+                                vue.$message({
+                                    type: 'error',
+                                    message: res.msg
+                                });
+                            }
+                        }
+                    })
+
+                }
+            }
+        })
+    ;
+
+</script>
+<style>
+    .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        height: 50px;
+        width: 30%;
+    }
+
+    #container {
+        padding-left: 5%;
+        padding-top: 5%;
+    }
+</style>
+
+</html>
