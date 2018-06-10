@@ -1,7 +1,7 @@
 ### 这是一个管理系统
 
 * 前台是VUE+ElementUI 
-* 后台是SpringBoot 
+* 后台是SpringBoot + Mybatis 
 ### 演示:
 * http://bs.wanpeng123.cn
 * 前台: 账号:14263201  密码:14263201  
